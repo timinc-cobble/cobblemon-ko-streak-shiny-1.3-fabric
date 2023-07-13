@@ -1,4 +1,4 @@
-rootProject.name = "Fabric-Kotlin"
+rootProject.name = "cobblemon-kostreakshiny"
 
 pluginManagement {
     repositories {

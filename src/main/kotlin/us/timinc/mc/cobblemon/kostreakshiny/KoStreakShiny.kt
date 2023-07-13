@@ -27,16 +27,19 @@ object KoStreakShiny : ModInitializer {
         CobblemonEvents.BATTLE_VICTORY.subscribe { battleVictoryEvent ->
             if (!battleVictoryEvent.battle.isPvW) return@subscribe
 
-            val wildPokemon = battleVictoryEvent.battle.actors.flatMap { it.pokemonList }.map { it.originalPokemon }
+            val wildPokemons = battleVictoryEvent.battle.actors.flatMap { it.pokemonList }.map { it.originalPokemon }
                 .filter { !it.isPlayerOwned() }
 
             battleVictoryEvent.winners
                 .flatMap { it.getPlayerUUIDs().mapNotNull(UUID::getPlayer) }
-                .forEach {
-                    val data = Cobblemon.playerData.get(it)
+                .forEach {player ->
+                    val data = Cobblemon.playerData.get(player)
                     val wildDefeats: WildDefeatsData =
                         data.extraData.getOrPut("wildDefeats") { WildDefeatsData() } as WildDefeatsData
-                    wildPokemon.forEach { wildDefeats.addDefeat(it.species.resourceIdentifier.toString()) }
+                    wildPokemons.forEach {wildPokemon ->
+                        val resourceIdentifier =wildPokemon.species.resourceIdentifier.toString()
+                        wildDefeats.addDefeat(resourceIdentifier)
+                    }
                     Cobblemon.playerData.saveSingle(data)
                 }
         }
