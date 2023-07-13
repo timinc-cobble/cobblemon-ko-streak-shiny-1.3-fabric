@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "cobblemon_kostreakshiny",
+  "version": "0.0.0",
+  "name": "Cobblemon KO Streak Shiny",
+  "description": "Increase your shiny odds with KO streaks",
+  "authors": [
+    "timinc"
+  ],
+  "license": "MPL-2.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "us.timinc.mc.cobblemon.kostreakshiny.KoStreakShiny"
+      }
+    ]
+  },
+  "depends": {
+    "java": ">=17",
+    "minecraft": ">=1.19.2",
+    "fabricloader": ">=0.13.3",
+    "fabric-language-kotlin": ">=1.9.3+kotlin.1.8.20",
+    "fabric": "*",
+    "architectury": ">=6.0.37",
+    "cobblemon": ">=1.2.0"
+  }
+}
