@@ -22,7 +22,7 @@ import java.util.UUID
 object KoStreakShiny : ModInitializer {
 
     override fun onInitialize() {
-        PlayerDataExtensionRegistry.register("wildDefeats", WildDefeatsData::class.java)
+        PlayerDataExtensionRegistry.register(WildDefeatsData.name, WildDefeatsData::class.java)
 
         CobblemonEvents.BATTLE_VICTORY.subscribe { battleVictoryEvent ->
             if (!battleVictoryEvent.battle.isPvW) return@subscribe
@@ -35,9 +35,9 @@ object KoStreakShiny : ModInitializer {
                 .forEach {player ->
                     val data = Cobblemon.playerData.get(player)
                     val wildDefeats: WildDefeatsData =
-                        data.extraData.getOrPut("wildDefeats") { WildDefeatsData() } as WildDefeatsData
+                        data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
                     wildPokemons.forEach {wildPokemon ->
-                        val resourceIdentifier =wildPokemon.species.resourceIdentifier.toString()
+                        val resourceIdentifier = wildPokemon.species.resourceIdentifier.toString()
                         wildDefeats.addDefeat(resourceIdentifier)
                     }
                     Cobblemon.playerData.saveSingle(data)
@@ -55,15 +55,12 @@ object KoStreakShiny : ModInitializer {
     }
 
     private fun checkScore(context: CommandContext<CommandSourceStack>): Int {
-        println("Hi")
         val nameArg = StringArgumentType.getString(context, "name")
-        println(nameArg)
         val player = context.source.playerOrException
-        println(player.displayName)
 
         val data = Cobblemon.playerData.get(player)
         val wildDefeats: WildDefeatsData =
-            data.extraData.getOrPut("wildDefeats") { WildDefeatsData() } as WildDefeatsData
+            data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
         val currentDefeats = wildDefeats.getDefeats(nameArg)
 
         context.source.sendSuccess(Component.literal(currentDefeats.toString()), true)
