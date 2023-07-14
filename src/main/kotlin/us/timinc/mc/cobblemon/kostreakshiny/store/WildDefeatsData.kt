@@ -8,8 +8,8 @@ class WildDefeatsData : PlayerDataExtension {
         const val name = "wildDefeats"
     }
 
-    private var pokemonResourceIdentifier = ""
-    private var count = 0
+    var pokemonResourceIdentifier = ""
+    var count = 0
 
     fun addDefeat(newPokemonResourceIdentifier: String) {
         if (newPokemonResourceIdentifier == pokemonResourceIdentifier) {
