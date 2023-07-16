@@ -8,33 +8,26 @@ class WildDefeatsData : PlayerDataExtension {
         const val name = "wildDefeats"
     }
 
-    var pokemonResourceIdentifier = ""
-    var count = 0
+    val wildDefeatsData = mutableMapOf<String, Int>()
 
     fun resetDefeats() {
-        pokemonResourceIdentifier = ""
-        count = 0
+        wildDefeatsData.clear()
     }
 
-    fun addDefeat(newPokemonResourceIdentifier: String) {
-        if (newPokemonResourceIdentifier == pokemonResourceIdentifier) {
-            count++
-        } else {
-            pokemonResourceIdentifier = newPokemonResourceIdentifier
-            count = 1
-        }
+    fun addDefeat(defeatedPokemonResourceIdentifier: String) {
+        wildDefeatsData[defeatedPokemonResourceIdentifier] =
+            getDefeats(defeatedPokemonResourceIdentifier) + 1
     }
 
     fun getDefeats(defeatedPokemonResourceIdentifier: String): Int {
-        if (defeatedPokemonResourceIdentifier == pokemonResourceIdentifier) {
-            return count
-        }
-        return 0
+        return wildDefeatsData.getOrDefault(defeatedPokemonResourceIdentifier, 0)
     }
 
     override fun deserialize(json: JsonObject): WildDefeatsData {
-        pokemonResourceIdentifier = json.get("pokemonResourceIdentifier").asString
-        count = json.get("count").asInt
+        val defeatsData = json.getAsJsonObject("defeats")
+        for (pokemonResourceIdentifier in defeatsData.keySet()) {
+            wildDefeatsData[pokemonResourceIdentifier] = defeatsData.get(pokemonResourceIdentifier).asInt
+        }
 
         return this
     }
@@ -45,10 +38,13 @@ class WildDefeatsData : PlayerDataExtension {
 
     override fun serialize(): JsonObject {
         val json = JsonObject()
-
         json.addProperty("name", name)
-        json.addProperty("pokemonResourceIdentifier", pokemonResourceIdentifier)
-        json.addProperty("count", count)
+
+        val defeatsData = JsonObject()
+        for (pokemonResourceIdentifier in wildDefeatsData.keys) {
+            defeatsData.addProperty(pokemonResourceIdentifier, wildDefeatsData[pokemonResourceIdentifier])
+        }
+        json.add("defeats", defeatsData)
 
         return json
     }

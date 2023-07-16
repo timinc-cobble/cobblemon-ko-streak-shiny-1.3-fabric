@@ -9,11 +9,13 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.getPlayer
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
+import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
 import net.minecraft.commands.CommandSourceStack
@@ -40,8 +42,11 @@ object KoStreakShiny : ModInitializer {
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             literal<CommandSourceStack>("checkkos")
-                .executes { checkScore(it) }
-                .register(dispatcher)
+                .then(
+                    argument<CommandSourceStack?, String?>(
+                        "name",
+                        StringArgumentType.greedyString()
+                    ).executes { checkScore(it) }).register(dispatcher)
             literal<CommandSourceStack>("resetkos")
                 .executes { resetScore(it) }
                 .register(dispatcher)
@@ -80,8 +85,6 @@ object KoStreakShiny : ModInitializer {
         }
         val shinyRate = Cobblemon.config.shinyRate.toInt()
         val shinyRoll = Random.nextInt(0, shinyRate)
-        world.players()
-            .forEach { it.sendSystemMessage(Component.literal("$maxKoStreak / $shinyChances / $shinyRate / $shinyRoll")) }
         entity.pokemon.shiny = shinyRoll < shinyChances
     }
 
@@ -104,17 +107,18 @@ object KoStreakShiny : ModInitializer {
     }
 
     private fun checkScore(context: CommandContext<CommandSourceStack>): Int {
+        val queriedPokemonResourceIdentifier = StringArgumentType.getString(context, "name")
         val player = context.source.playerOrException
         val data = Cobblemon.playerData.get(player)
 
         val wildDefeats = data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
-        val currentCount = wildDefeats.count
+        val currentCount = wildDefeats.getDefeats(queriedPokemonResourceIdentifier.toString())
 
         if (currentCount == 0) {
             context.source.sendSuccess(Component.translatable("kostreakshiny.nostreak"), true)
         } else {
             val currentPokemonSpecies =
-                PokemonSpecies.getByIdentifier(ResourceLocation(wildDefeats.pokemonResourceIdentifier))
+                PokemonSpecies.getByIdentifier(ResourceLocation(queriedPokemonResourceIdentifier.toString()))
 
             if (currentPokemonSpecies == null) {
                 context.source.sendSuccess(
