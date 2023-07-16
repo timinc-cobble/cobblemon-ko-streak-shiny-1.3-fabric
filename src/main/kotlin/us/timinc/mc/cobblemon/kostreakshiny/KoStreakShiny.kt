@@ -80,8 +80,6 @@ object KoStreakShiny : ModInitializer {
         }
         val shinyRate = Cobblemon.config.shinyRate.toInt()
         val shinyRoll = Random.nextInt(0, shinyRate)
-        world.players()
-            .forEach { it.sendSystemMessage(Component.literal("$maxKoStreak / $shinyChances / $shinyRate / $shinyRoll")) }
         entity.pokemon.shiny = shinyRoll < shinyChances
     }
 
