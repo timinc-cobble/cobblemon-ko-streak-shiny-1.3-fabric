@@ -8,26 +8,33 @@ class WildDefeatsData : PlayerDataExtension {
         const val name = "wildDefeats"
     }
 
-    val wildDefeatsData = mutableMapOf<String, Int>()
+    var pokemonResourceIdentifier = ""
+    var count = 0
 
     fun resetDefeats() {
-        wildDefeatsData.clear()
+        pokemonResourceIdentifier = ""
+        count = 0
     }
 
-    fun addDefeat(defeatedPokemonResourceIdentifier: String) {
-        wildDefeatsData[defeatedPokemonResourceIdentifier] =
-            getDefeats(defeatedPokemonResourceIdentifier) + 1
+    fun addDefeat(newPokemonResourceIdentifier: String) {
+        if (newPokemonResourceIdentifier == pokemonResourceIdentifier) {
+            count++
+        } else {
+            pokemonResourceIdentifier = newPokemonResourceIdentifier
+            count = 1
+        }
     }
 
     fun getDefeats(defeatedPokemonResourceIdentifier: String): Int {
-        return wildDefeatsData.getOrDefault(defeatedPokemonResourceIdentifier, 0)
+        if (defeatedPokemonResourceIdentifier == pokemonResourceIdentifier) {
+            return count
+        }
+        return 0
     }
 
     override fun deserialize(json: JsonObject): WildDefeatsData {
-        val defeatsData = json.getAsJsonObject("defeats")
-        for (pokemonResourceIdentifier in defeatsData.keySet()) {
-            wildDefeatsData[pokemonResourceIdentifier] = defeatsData.get(pokemonResourceIdentifier).asInt
-        }
+        pokemonResourceIdentifier = json.get("pokemonResourceIdentifier").asString
+        count = json.get("count").asInt
 
         return this
     }
@@ -38,13 +45,10 @@ class WildDefeatsData : PlayerDataExtension {
 
     override fun serialize(): JsonObject {
         val json = JsonObject()
-        json.addProperty("name", name)
 
-        val defeatsData = JsonObject()
-        for (pokemonResourceIdentifier in wildDefeatsData.keys) {
-            defeatsData.addProperty(pokemonResourceIdentifier, wildDefeatsData[pokemonResourceIdentifier])
-        }
-        json.add("defeats", defeatsData)
+        json.addProperty("name", name)
+        json.addProperty("pokemonResourceIdentifier", pokemonResourceIdentifier)
+        json.addProperty("count", count)
 
         return json
     }
