@@ -1,8 +1,5 @@
-# Fabric-Kotlin MDK
+Increase your chances of getting a shiny Pokemon by KOing wild versions of it!
 
-This is an example of using Cobblemon with Fabric and Kotlin. This mirrors the logic in the Java version of the MDK.
+After KOing a given Pokemon 100 times, your chance doubles, 300 times it triples, and 500 times it quadruples.
 
-## Notice when writing mixins
-
-When writing mixins, you should write these in Java and not in Kotlin due to a lack of support for Kotlin.
-More information about this can be read on this [Sponge Issue](https://github.com/SpongePowered/Mixin/issues/245)
+If you KO another species of Pokemon, it resets and starts again with that species.
