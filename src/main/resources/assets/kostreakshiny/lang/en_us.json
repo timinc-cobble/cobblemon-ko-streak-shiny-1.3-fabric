@@ -1,4 +1,6 @@
 {
-  "kostreakshiny.nostreak": "No current KO streak",
-  "kostreakshiny.streak": "Current KO streak: %d %d"
+  "kostreakshiny.nostreak": "No current KO streak.",
+  "kostreakshiny.streak": "Current KO streak: %d %d.",
+  "kostreakshiny.error.invalidPokemonIdentifier": "There was an error with your KO Streak data. Run /resetkos to reset it.",
+  "kostreakshiny.successfulReset": "KO Streak successfully reset."
 }

@@ -11,6 +11,11 @@ class WildDefeatsData : PlayerDataExtension {
     var pokemonResourceIdentifier = ""
     var count = 0
 
+    fun resetDefeats() {
+        pokemonResourceIdentifier = ""
+        count = 0
+    }
+
     fun addDefeat(newPokemonResourceIdentifier: String) {
         if (newPokemonResourceIdentifier == pokemonResourceIdentifier) {
             count++
