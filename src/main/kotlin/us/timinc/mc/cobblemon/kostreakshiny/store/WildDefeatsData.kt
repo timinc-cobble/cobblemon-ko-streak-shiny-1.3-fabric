@@ -8,7 +8,7 @@ class WildDefeatsData : PlayerDataExtension {
         const val name = "wildDefeats"
     }
 
-    private val wildDefeatsData = mutableMapOf<String, Int>()
+    val wildDefeatsData = mutableMapOf<String, Int>()
 
     fun resetDefeats() {
         wildDefeatsData.clear()
