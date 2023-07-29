@@ -44,7 +44,6 @@ object KoStreakShiny : ModInitializer {
 
     fun getPlayerKoStreak(player: Player, species: String): Int {
         val data = Cobblemon.playerData.get(player)
-        println("${species}!")
         return (data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData).getDefeats(
             species
         )
