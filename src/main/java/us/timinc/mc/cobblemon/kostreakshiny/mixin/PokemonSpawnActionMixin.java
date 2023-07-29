@@ -28,6 +28,10 @@ public abstract class PokemonSpawnActionMixin {
 
     @Inject(method = "createEntity", at = @At("HEAD"))
     private void modifyShinyRate(CallbackInfoReturnable<Entity> cir) {
+        if (props.getShiny() == null) {
+            return;
+        }
+
         SpawningContext ctx = ((PokemonSpawnAction) (Object) this).getCtx();
         Level world = ctx.getWorld();
         Optional<Player> possibleMaxPlayer = world.getNearbyPlayers(TargetingConditions.forNonCombat()
