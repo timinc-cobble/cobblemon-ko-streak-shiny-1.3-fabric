@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "id": "cobblemon_kostreakshiny",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "name": "Cobblemon KO Streak Shiny",
   "description": "Increase your shiny odds with KO streaks",
   "authors": [
     "timinc"
   ],
-  "license": "MPL-2.0",
+  "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -17,6 +17,9 @@
       }
     ]
   },
+  "mixins": [
+    "kostreakshiny.mixins.json"
+  ],
   "depends": {
     "java": ">=17",
     "minecraft": ">=1.19.2",
