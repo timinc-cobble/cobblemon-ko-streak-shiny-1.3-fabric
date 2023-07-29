@@ -28,7 +28,7 @@ public abstract class PokemonSpawnActionMixin {
 
     @Inject(method = "createEntity", at = @At("HEAD"))
     private void modifyShinyRate(CallbackInfoReturnable<Entity> cir) {
-        if (props.getShiny() == null) {
+        if (props.getShiny() != null) {
             return;
         }
 
