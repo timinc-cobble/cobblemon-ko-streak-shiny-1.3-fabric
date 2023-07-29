@@ -5,7 +5,6 @@ import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.battles.BattleVictoryEvent
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.storage.player.PlayerDataExtensionRegistry
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.getPlayer
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -15,17 +14,12 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.context.CommandContext
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.entity.ai.targeting.TargetingConditions
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.phys.AABB
 import us.timinc.mc.cobblemon.kostreakshiny.store.WildDefeatsData
-import java.util.UUID
-import kotlin.random.Random
+import java.util.*
 
 object KoStreakShiny : ModInitializer {
 
@@ -46,41 +40,14 @@ object KoStreakShiny : ModInitializer {
                 .executes { resetScore(it) }
                 .register(dispatcher)
         }
-
-        ServerEntityEvents.ENTITY_LOAD.register { entity, world ->
-            if (entity !is PokemonEntity || entity.pokemon.isPlayerOwned()) {
-                return@register
-            }
-
-            checkAndApplyBonusShinyChance(entity, world)
-        }
     }
 
-    private fun getPlayerKoStreak(player: Player): WildDefeatsData {
+    fun getPlayerKoStreak(player: Player, species: String): Int {
         val data = Cobblemon.playerData.get(player)
-        return data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
-    }
-
-    private fun checkAndApplyBonusShinyChance(entity: PokemonEntity, world: ServerLevel) {
-        val maxKoStreak = world.getNearbyPlayers(
-            TargetingConditions.forNonCombat()
-                .ignoreLineOfSight()
-                .ignoreInvisibilityTesting(),
-            entity,
-            AABB.ofSize(entity.eyePosition, 32.0, 32.0, 32.0)
-        ).maxOfOrNull {
-            getPlayerKoStreak(it).getDefeats(entity.pokemon.species.resourceIdentifier.toString())
-        } ?: 0
-
-        val shinyChances = when {
-            maxKoStreak > 500 -> 4
-            maxKoStreak > 300 -> 3
-            maxKoStreak > 100 -> 2
-            else -> 1
-        }
-        val shinyRate = Cobblemon.config.shinyRate.toInt()
-        val shinyRoll = Random.nextInt(0, shinyRate)
-        entity.pokemon.shiny = shinyRoll < shinyChances
+        println("${species}!")
+        return (data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData).getDefeats(
+            species
+        )
     }
 
     private fun handleWildDefeat(battleVictoryEvent: BattleVictoryEvent) {
@@ -95,7 +62,8 @@ object KoStreakShiny : ModInitializer {
                     data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
                 wildPokemons.forEach { wildPokemon ->
                     val resourceIdentifier = wildPokemon.species.resourceIdentifier.toString()
-                    wildDefeats.addDefeat(resourceIdentifier)
+                    println(wildPokemon.species.name.lowercase(Locale.getDefault()))
+                    wildDefeats.addDefeat(wildPokemon.species.name.lowercase(Locale.getDefault()))
                 }
                 Cobblemon.playerData.saveSingle(data)
             }
