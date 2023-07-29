@@ -77,7 +77,7 @@ object KoStreakShiny : ModInitializer {
             context.source.sendSuccess(Component.translatable("kostreakshiny.nostreak"), true)
         } else {
             val currentPokemonSpecies =
-                PokemonSpecies.getByIdentifier(ResourceLocation(wildDefeats.pokemonResourceIdentifier))
+                PokemonSpecies.getByIdentifier(ResourceLocation("cobblemon", wildDefeats.pokemonResourceIdentifier))
 
             if (currentPokemonSpecies == null) {
                 context.source.sendSuccess(
