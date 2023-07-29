@@ -61,8 +61,6 @@ object KoStreakShiny : ModInitializer {
                 val wildDefeats: WildDefeatsData =
                     data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData
                 wildPokemons.forEach { wildPokemon ->
-                    val resourceIdentifier = wildPokemon.species.resourceIdentifier.toString()
-                    println(wildPokemon.species.name.lowercase(Locale.getDefault()))
                     wildDefeats.addDefeat(wildPokemon.species.name.lowercase(Locale.getDefault()))
                 }
                 Cobblemon.playerData.saveSingle(data)

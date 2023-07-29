@@ -54,7 +54,6 @@ public abstract class PokemonSpawnActionMixin {
 
         int shinyRate = (int) Cobblemon.config.getShinyRate();
         int shinyRoll = Random.Default.nextInt(shinyRate);
-        System.out.println(String.format("%s/%s", shinyRoll, shinyChances));
         props.setShiny(shinyRoll < shinyChances);
     }
 }
