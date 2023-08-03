@@ -1,25 +1,31 @@
 package us.timinc.mc.cobblemon.kostreakshiny
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Cobblemon.config
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.battles.BattleVictoryEvent
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.api.storage.player.PlayerDataExtensionRegistry
 import com.cobblemon.mod.common.util.getPlayer
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
-
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.context.CommandContext
+import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.ai.targeting.TargetingConditions
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
 import us.timinc.mc.cobblemon.kostreakshiny.store.WildDefeatsData
 import java.util.*
+import kotlin.random.Random.Default.nextInt
 
 object KoStreakShiny : ModInitializer {
 
@@ -42,11 +48,49 @@ object KoStreakShiny : ModInitializer {
         }
     }
 
-    fun getPlayerKoStreak(player: Player, species: String): Int {
+    private fun getPlayerKoStreak(player: Player, species: String): Int {
         val data = Cobblemon.playerData.get(player)
         return (data.extraData.getOrPut(WildDefeatsData.name) { WildDefeatsData() } as WildDefeatsData).getDefeats(
             species
         )
+    }
+
+    fun modifyShinyRate(
+        props: PokemonProperties,
+        ctx: SpawningContext
+    ) {
+        if (props.shiny != null || props.species == null) {
+            return
+        }
+        val world = ctx.world
+        val possibleMaxPlayer = world.getNearbyPlayers(
+            TargetingConditions.forNonCombat()
+                .ignoreLineOfSight()
+                .ignoreInvisibilityTesting(),
+            null,
+            AABB.ofSize(Vec3.atCenterOf(ctx.position), 64.0, 64.0, 64.0)
+        ).stream().max(Comparator.comparingInt { player: Player? ->
+            getPlayerKoStreak(
+                player!!, props.species!!
+            )
+        })
+        if (possibleMaxPlayer.isEmpty) {
+            return
+        }
+
+        val maxPlayer = possibleMaxPlayer.get()
+        val maxKoStreak = getPlayerKoStreak(maxPlayer, props.species!!)
+        val shinyChances = when {
+            maxKoStreak > 500 -> 4
+            maxKoStreak > 300 -> 3
+            maxKoStreak > 100 -> 2
+            else -> 1
+        }
+
+
+        val shinyRate: Int = config.shinyRate.toInt()
+        val shinyRoll = nextInt(shinyRate)
+        props.shiny = shinyRoll < shinyChances
     }
 
     private fun handleWildDefeat(battleVictoryEvent: BattleVictoryEvent) {
@@ -66,6 +110,7 @@ object KoStreakShiny : ModInitializer {
             }
     }
 
+    @Suppress("SameReturnValue")
     private fun checkScore(context: CommandContext<CommandSourceStack>): Int {
         val player = context.source.playerOrException
         val data = Cobblemon.playerData.get(player)
@@ -98,6 +143,7 @@ object KoStreakShiny : ModInitializer {
         return Command.SINGLE_SUCCESS
     }
 
+    @Suppress("SameReturnValue")
     private fun resetScore(context: CommandContext<CommandSourceStack>): Int {
         val player = context.source.playerOrException
         val data = Cobblemon.playerData.get(player)
