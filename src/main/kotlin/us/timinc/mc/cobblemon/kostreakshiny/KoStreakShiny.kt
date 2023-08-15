@@ -3,9 +3,7 @@ package us.timinc.mc.cobblemon.kostreakshiny
 import com.cobblemon.mod.common.Cobblemon.config
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
-import me.shedaniel.autoconfig.AutoConfig
-import me.shedaniel.autoconfig.annotation.Config
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer
+import draylar.omegaconfig.OmegaConfig
 import net.fabricmc.api.ModInitializer
 import net.minecraft.world.entity.ai.targeting.TargetingConditions
 import net.minecraft.world.entity.player.Player
@@ -13,25 +11,14 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import us.timinc.mc.cobblemon.counter.Counter
 import us.timinc.mc.cobblemon.kostreakshiny.config.KoStreakShinyConfig
-import java.util.*
 import kotlin.random.Random.Default.nextInt
 
 object KoStreakShiny : ModInitializer {
     const val MOD_ID = "ko_streak_shiny"
-    private lateinit var koStreakShinyConfig: KoStreakShinyConfig
+    private var koStreakShinyConfig: KoStreakShinyConfig =
+        OmegaConfig.register(KoStreakShinyConfig::class.java)
 
-    override fun onInitialize() {
-        AutoConfig.register(
-            KoStreakShinyConfig::class.java
-        ) { definition: Config?, configClass: Class<KoStreakShinyConfig?>? ->
-            JanksonConfigSerializer(
-                definition,
-                configClass
-            )
-        }
-        koStreakShinyConfig = AutoConfig.getConfigHolder(KoStreakShinyConfig::class.java)
-            .config
-    }
+    override fun onInitialize() {}
 
     fun modifyShinyRate(
         props: PokemonProperties,
@@ -41,7 +28,7 @@ object KoStreakShiny : ModInitializer {
             return
         }
         val world = ctx.world
-        val possibleMaxPlayer = world.getNearbyPlayers(
+        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") val possibleMaxPlayer = world.getNearbyPlayers(
             TargetingConditions.forNonCombat()
                 .ignoreLineOfSight()
                 .ignoreInvisibilityTesting(),
